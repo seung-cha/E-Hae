@@ -3,3 +3,4 @@ test/
 
 # Don't track API keys
 key.py
+__pycache__
