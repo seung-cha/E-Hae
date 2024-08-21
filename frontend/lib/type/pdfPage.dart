@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:convert';
 
 /// complies with PyMuPDF's Json structure.
 class PdfPage {
   final double width;
   final double height;
   final List<TextBlock> blocks = [];
+  final List<PageImage> images = [];
 
   /// Create a base object, to be filled with JSON.
   PdfPage.none()
@@ -16,9 +18,13 @@ class PdfPage {
       : width = json['width'] as double,
         height = json['height'] as double {
     final b = json['blocks'];
-
     for (var block in b) {
       blocks.add(TextBlock.fromJson(block));
+    }
+
+    final imgs = json['imgs'];
+    for (var img in imgs) {
+      images.add(PageImage.fromJson(img));
     }
   }
 
@@ -26,6 +32,7 @@ class PdfPage {
   Widget build() {
     final List<Widget> widgets = [];
 
+    // Insert texts
     for (var block in blocks) {
       for (var line in block.lines) {
         List<TextSpan> textSpans = [];
@@ -62,17 +69,27 @@ class PdfPage {
             ),
           ),
         );
-
-        // widgets.add(
-        //   Positioned(
-        //     left: line.spans[0].origin.x,
-        //     top: line.spans[0].origin.y,
-        //     child: Text.rich(
-        //       span0,
-        //     ),
-        //   ),
-        // );
       }
+    }
+
+    // Insert images
+    for (var image in images) {
+      widgets.add(
+        Positioned(
+          top: image.bBox.min.y,
+          left: image.bBox.min.x,
+          child: Container(
+            //decoration: BoxDecoration(border: Border.all()), // Uncomment to debug
+            width: image.bBox.max.x - image.bBox.min.x,
+            height: image.bBox.max.y - image.bBox.min.y,
+
+            child: Image.memory(
+              base64Decode(image.imageB64),
+              fit: BoxFit.fill,
+            ),
+          ),
+        ),
+      );
     }
 
     return Container(
@@ -124,6 +141,16 @@ class Span {
         text = json['text'] as String {
     origin = PagePoint.fromJson(json['origin']);
   }
+}
+
+class PageImage {
+  final String imageB64;
+  final PageBBox bBox;
+
+  PageImage(this.imageB64, this.bBox);
+  PageImage.fromJson(Map<String, dynamic> json)
+      : imageB64 = json['img'],
+        bBox = PageBBox.fromJson(json['bbox']);
 }
 
 /// A point in a PDF page
