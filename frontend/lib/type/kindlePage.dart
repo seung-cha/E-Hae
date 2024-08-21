@@ -3,18 +3,18 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
 
 /// complies with PyMuPDF's Json structure.
-class PdfPage {
+class KindlePage {
   final double width;
   final double height;
   final List<TextBlock> blocks = [];
   final List<PageImage> images = [];
 
   /// Create a base object, to be filled with JSON.
-  PdfPage.none()
+  KindlePage.none()
       : width = 0,
         height = 0;
 
-  PdfPage.fromJson(Map<String, dynamic> json)
+  KindlePage.fromJson(Map<String, dynamic> json)
       : width = json['width'] as double,
         height = json['height'] as double {
     final b = json['blocks'];
@@ -28,9 +28,30 @@ class PdfPage {
     }
   }
 
-  /// Return a page.
+  /// Return a stack of page elements, unbounded.
+  /// call this inside a container to adjust page size.
   Widget build() {
     final List<Widget> widgets = [];
+
+    // Insert images
+    for (var image in images) {
+      widgets.add(
+        Positioned(
+          left: image.bBox.min.x,
+          top: image.bBox.min.y, // For some reason this is correct
+          width: image.bBox.max.x - image.bBox.min.x,
+          height: image.bBox.max.y - image.bBox.min.y,
+          child: Container(
+            decoration:
+                BoxDecoration(border: Border.all()), // Uncomment to debug
+            child: Image.memory(
+              base64Decode(image.imageB64),
+              fit: BoxFit.fill,
+            ),
+          ),
+        ),
+      );
+    }
 
     // Insert texts
     for (var block in blocks) {
@@ -43,8 +64,6 @@ class PdfPage {
           textSpans.add(
             TextSpan(
               text: span.text,
-              style: GoogleFonts.getFont("Roboto Condensed",
-                  fontSize: span.fontSize),
             ),
           );
         }
@@ -55,9 +74,9 @@ class PdfPage {
           Positioned(
             left: line.bBox.min.x,
             top: line.bBox.min.y,
+            width: line.bBox.max.x - line.bBox.min.x,
+            height: line.bBox.max.y - line.bBox.min.y,
             child: Container(
-              width: line.bBox.max.x - line.bBox.min.x,
-              height: line.bBox.max.y - line.bBox.min.y,
               //decoration: BoxDecoration(border: Border.all()), // Uncomment to debug
               child: FittedBox(
                 alignment: Alignment.centerLeft,
@@ -72,34 +91,9 @@ class PdfPage {
       }
     }
 
-    // Insert images
-    for (var image in images) {
-      widgets.add(
-        Positioned(
-          top: image.bBox.min.y,
-          left: image.bBox.min.x,
-          child: Container(
-            //decoration: BoxDecoration(border: Border.all()), // Uncomment to debug
-            width: image.bBox.max.x - image.bBox.min.x,
-            height: image.bBox.max.y - image.bBox.min.y,
-
-            child: Image.memory(
-              base64Decode(image.imageB64),
-              fit: BoxFit.fill,
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(border: Border.all()),
-      child: Stack(
-        alignment: Alignment.center,
-        children: widgets,
-      ),
+    return Stack(
+      alignment: Alignment.center,
+      children: widgets,
     );
   }
 }
@@ -146,11 +140,17 @@ class Span {
 class PageImage {
   final String imageB64;
   final PageBBox bBox;
+  final double? width;
+  final double? height;
 
-  PageImage(this.imageB64, this.bBox);
+  PageImage(this.imageB64, this.bBox, this.width, this.height);
   PageImage.fromJson(Map<String, dynamic> json)
       : imageB64 = json['img'],
-        bBox = PageBBox.fromJson(json['bbox']);
+        bBox = PageBBox.fromJson(json['bbox']),
+        width =
+            json['bbox'][4] as double > 0 ? json['bbox'][4] as double : null,
+        height =
+            json['bbox'][5] as double > 0 ? json['bbox'][5] as double : null;
 }
 
 /// A point in a PDF page
