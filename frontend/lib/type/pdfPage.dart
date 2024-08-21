@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// complies with PyMuPDF's Json structure.
 class PdfPage {
@@ -6,10 +7,8 @@ class PdfPage {
   final double height;
   final List<TextBlock> blocks = [];
 
-  PdfPage(this.width, this.height);
-
   /// Create a base object, to be filled with JSON.
-  PdfPage.base()
+  PdfPage.none()
       : width = 0,
         height = 0;
 
@@ -23,8 +22,8 @@ class PdfPage {
     }
   }
 
-  /// Return widgets making up for this page.
-  List<Widget> build({TextAlign? alignMode = null}) {
+  /// Return a page.
+  Widget build() {
     final List<Widget> widgets = [];
 
     for (var block in blocks) {
@@ -37,7 +36,8 @@ class PdfPage {
           textSpans.add(
             TextSpan(
               text: span.text,
-              style: TextStyle(fontSize: span.fontSize),
+              style: GoogleFonts.getFont("Roboto Condensed",
+                  fontSize: span.fontSize),
             ),
           );
         }
@@ -45,23 +45,54 @@ class PdfPage {
         TextSpan span0 = TextSpan(children: textSpans);
 
         widgets.add(
-          Text.rich(
-            span0,
-            textAlign: alignMode,
-            softWrap: true,
+          Positioned(
+            left: line.bBox.min.x,
+            top: line.bBox.min.y,
+            child: Container(
+              width: line.bBox.max.x - line.bBox.min.x,
+              height: line.bBox.max.y - line.bBox.min.y,
+              //decoration: BoxDecoration(border: Border.all()), // Uncomment to debug
+              child: FittedBox(
+                alignment: Alignment.centerLeft,
+                fit: BoxFit.cover,
+                child: Text.rich(
+                  span0,
+                ),
+              ),
+            ),
           ),
         );
+
+        // widgets.add(
+        //   Positioned(
+        //     left: line.spans[0].origin.x,
+        //     top: line.spans[0].origin.y,
+        //     child: Text.rich(
+        //       span0,
+        //     ),
+        //   ),
+        // );
       }
     }
 
-    return widgets;
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(border: Border.all()),
+      child: Stack(
+        alignment: Alignment.center,
+        children: widgets,
+      ),
+    );
   }
 }
 
 class TextBlock {
   final List<Line> lines = [];
+  final PageBBox bBox;
 
-  TextBlock.fromJson(Map<String, dynamic> json) {
+  TextBlock.fromJson(Map<String, dynamic> json)
+      : bBox = PageBBox.fromJson(json['bbox']) {
     final l = json['lines'];
     for (var line in l) {
       lines.add(Line.fromJson(line));
@@ -71,8 +102,9 @@ class TextBlock {
 
 class Line {
   final List<Span> spans = [];
-
-  Line.fromJson(Map<String, dynamic> json) {
+  final PageBBox bBox;
+  Line.fromJson(Map<String, dynamic> json)
+      : bBox = PageBBox.fromJson(json['bbox']) {
     final s = json['spans'];
     for (var span in s) {
       spans.add(Span.fromJson(span));
@@ -83,27 +115,44 @@ class Line {
 class Span {
   final String font;
   final double fontSize;
-  late Origin origin = Origin.zero();
+  late PagePoint origin = PagePoint.zero();
   final String text;
 
   Span.fromJson(Map<String, dynamic> json)
       : font = json['font'] as String,
         fontSize = json['size'] as double,
         text = json['text'] as String {
-    origin = Origin.fromJson(json['origin']);
+    origin = PagePoint.fromJson(json['origin']);
   }
 }
 
-class Origin {
+/// A point in a PDF page
+class PagePoint {
   final double x;
   final double y;
 
-  Origin(this.x, this.y);
-  Origin.zero()
+  PagePoint(this.x, this.y);
+  PagePoint.zero()
       : x = 0,
         y = 0;
 
-  Origin.fromJson(List<dynamic> json)
+  PagePoint.fromJson(List<dynamic> json)
       : x = json[0] as double,
         y = json[1] as double;
+}
+
+/// A bounding box in a PDF page
+class PageBBox {
+  final PagePoint min;
+  final PagePoint max;
+
+  PageBBox(this.min, this.max);
+
+  PageBBox.zero()
+      : min = PagePoint.zero(),
+        max = PagePoint.zero();
+
+  PageBBox.fromJson(List<dynamic> json)
+      : min = PagePoint(json[0] as double, json[1] as double),
+        max = PagePoint(json[2] as double, json[3] as double);
 }
