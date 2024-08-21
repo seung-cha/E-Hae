@@ -1,10 +1,11 @@
 import pymupdf
-from flask import Flask
+from flask import Flask, request
 from flask_cors import CORS
 from flask_restful import Resource, Api
 
 import json
 import base64
+import hashlib
 
 app = Flask(__name__)
 CORS(app)
@@ -21,8 +22,31 @@ Because Flutter has no good packages for PDFs, handle all logics in Python
 and sent response via http requests.
 """
 
+openFiles = {}
 
+class OpenFile(Resource):
+    """
+    Open PDF (or epub) file, storing it in a dictionary.
+    Send the file's metadata as response.
+    """
+    def post(self):
+        path = request.args['path']
+        h = hashlib.shake_128(path.encode()).hexdigest(8)
+        width = 0
+        height = 0
 
+        # Just return hash if file is already open
+        if h not in openFiles:
+            openFiles[h] = pymupdf.open(path)
+  
+        doc: pymupdf.Document = openFiles[h]
+        media = doc[0].mediabox
+        
+        width = media.width
+        height = media.height
+        return {'id': h, 'width': width, 'height': height, 'pageCount': doc.page_count}, OK
+
+api.add_resource(OpenFile, '/open')
 
 
 class GetPage(Resource):
@@ -31,16 +55,16 @@ class GetPage(Resource):
     A page must be open beforehand.
     """
     def get(self):
-        # TODO: accept page no and get rid of doc.
-        doc = pymupdf.open("book_samples/scholar_text_only.pdf")
-        pageDict = doc[1].get_textpage().extractDICT()
+        id = request.args['id']
+        pageNo = int(request.args['no'])
+        doc: pymupdf.Document = openFiles[id]
+        pageDict = doc[pageNo].get_textpage().extractDICT()
         pageImages: list = []
-
-    
 
         # Extract images
         # Refer to https://pymupdf.readthedocs.io/en/latest/page.html#Page.get_image_info
-        page_imgs = doc[1].get_images(full= True)
+        page_imgs = doc[pageNo].get_images(full= True)
+
         for img in page_imgs:
             xref: int = img[0]
             smask: int = img[1]
@@ -52,7 +76,7 @@ class GetPage(Resource):
             name: str = img[7]
             filter: str = img[8]
             referencer: int = img[9]
-            bbox = doc[8].get_image_bbox(img)
+            bbox = doc[pageNo].get_image_bbox(img)
             
             imgDict = doc.extract_image(xref) # Dont use this
             ext: str = imgDict['ext']
@@ -64,7 +88,9 @@ class GetPage(Resource):
                 bbox.tl.x,
                 bbox.tl.y,
                 bbox.br.x,
-                bbox.br.y
+                bbox.br.y,
+                bbox.width,
+                bbox.height
             ]
             # Convert byte to encoded base64 to embed in json
             imgB64 = base64.b64encode(imgByte).decode()
@@ -78,7 +104,6 @@ class GetPage(Resource):
 
 
 api.add_resource(GetPage, '/get')
-#api.add_resource(GetPage, '/todo/<int:no>') # Actual ep to use
 
 
 if __name__ == '__main__':
