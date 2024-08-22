@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'kindlePageView.dart';
-import 'type/kindlePage.dart';
 import 'type/bookMetadata.dart';
 import 'package:flutter/services.dart';
 
@@ -42,7 +41,9 @@ class _KindleViewState extends State<KindleView> {
           pageView?.prev();
         }
       },
-      child: pageView ?? const Text("loading"),
+      child: SelectionArea(
+        child: pageView ?? const Text("loading"),
+      ),
     );
   }
 }

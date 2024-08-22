@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'type/kindlePage.dart';
 import 'backend.dart';
@@ -34,6 +33,7 @@ class _KindlePageView extends State<KindlePageView> {
     for (int i = 0; i < widget.pageCount; i++) {
       pages.add(await Backend.getPage(widget.id, i));
     }
+
     ready = true;
     setState(() {});
   }
@@ -59,7 +59,6 @@ class _KindlePageView extends State<KindlePageView> {
 
   @override
   Widget build(BuildContext context) {
-    //TODO: move callback to kindleView and create a controller for this.
     return FocusScope(
       autofocus: true,
       child: Stack(
@@ -67,12 +66,12 @@ class _KindlePageView extends State<KindlePageView> {
         children: [
           Container(color: Colors.black45),
           Transform.scale(
-            scale: scale * 1.5,
+            scale: MediaQuery.of(context).size.height / widget.height * 0.9,
             child: Container(
               width: widget.width,
               height: widget.height,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: const Color.fromARGB(255, 250, 250, 250),
                 border: Border.all(),
               ),
               child: ready ? pages[index].build() : const Text("Loading"),
