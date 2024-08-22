@@ -44,7 +44,11 @@ class OpenFile(Resource):
         
         width = media.width
         height = media.height
-        return {'id': h, 'width': width, 'height': height, 'pageCount': doc.page_count}, OK
+
+        toc = doc.get_toc()
+        print(toc)
+
+        return {'id': h, 'width': width, 'height': height, 'pageCount': doc.page_count, 'toc': toc}, OK
 
 api.add_resource(OpenFile, '/open')
 
@@ -58,6 +62,7 @@ class GetPage(Resource):
         id = request.args['id']
         pageNo = int(request.args['no'])
         doc: pymupdf.Document = openFiles[id]
+
         pageDict = doc[pageNo].get_textpage().extractDICT()
         pageImages: list = []
 
