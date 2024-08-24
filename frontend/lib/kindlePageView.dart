@@ -1,60 +1,19 @@
 import 'package:flutter/material.dart';
 import 'type/kindlePage.dart';
-import 'backend.dart';
 
 class KindlePageView extends StatefulWidget {
-  KindlePageView(this.id, this.pageCount, this.width, this.height);
+  KindlePageView(this._page, this._scale);
 
-  final String id;
-  final double width;
-  final double height;
-  final int pageCount;
-  final _KindlePageView state = _KindlePageView();
-
-  void next() {
-    state.next();
-  }
-
-  void prev() {
-    state.prev();
-  }
-
+  final KindlePage _page;
+  final double _scale;
   @override
-  createState() => state;
+  createState() => _KindlePageView();
 }
 
 class _KindlePageView extends State<KindlePageView> {
-  late List<KindlePage> pages = [];
-  bool ready = false;
-  int index = 0;
-  double scale = 1.0;
-
-  void initPages() async {
-    for (int i = 0; i < widget.pageCount; i++) {
-      pages.add(await Backend.getPage(widget.id, i));
-    }
-
-    ready = true;
-    setState(() {});
-  }
-
-  void next() {
-    if (index >= widget.pageCount) return;
-    index++;
-    setState(() {});
-  }
-
-  void prev() {
-    if (index <= 0) return;
-    index--;
-    setState(() {});
-  }
-
   @override
   void initState() {
     super.initState();
-
-    initPages();
   }
 
   @override
@@ -66,15 +25,15 @@ class _KindlePageView extends State<KindlePageView> {
         children: [
           Container(color: Colors.black45),
           Transform.scale(
-            scale: MediaQuery.of(context).size.height / widget.height * 0.9,
+            scale: widget._scale,
             child: Container(
-              width: widget.width,
-              height: widget.height,
+              width: widget._page.width,
+              height: widget._page.height,
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 250, 250, 250),
                 border: Border.all(),
               ),
-              child: ready ? pages[index].build() : const Text("Loading"),
+              child: widget._page.build(),
             ),
           ),
         ],

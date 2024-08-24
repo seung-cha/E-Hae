@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'kindlePageView.dart';
 import 'type/bookMetadata.dart';
 import 'package:flutter/services.dart';
+import 'kindleController.dart';
 
 import 'backend.dart';
 
 class KindleView extends StatefulWidget {
+  KindleView();
+
+  // TODO: REMOVE THIS
+  final String path = './book_samples/novel_text_only.pdf';
   @override
   State<StatefulWidget> createState() => _KindleViewState();
 }
@@ -13,21 +18,23 @@ class KindleView extends StatefulWidget {
 class _KindleViewState extends State<KindleView> {
   double scale = 1.0;
   int page = 0;
-  BookMetadata metaData = BookMetadata();
-  KindlePageView? pageView;
 
-  void openFile() async {
-    metaData = await Backend.openFile('./book_samples/novel_text_only.pdf');
-    pageView = KindlePageView(
-        metaData.id, metaData.pageCount, metaData.width, metaData.height);
+  late KindleController controller = KindleController.NotReady();
 
-    setState(() {});
+  void OpenFile() async {
+    controller = KindleController(await Backend.OpenFile(widget.path),
+        onSomePagesLoad: () {
+      setState(() {});
+    });
+    // Calculate scale, fit to height
+    scale =
+        MediaQuery.of(context).size.height / controller.metadata.height * 0.8;
   }
 
   @override
   void initState() {
     super.initState();
-    openFile();
+    OpenFile();
   }
 
   @override
@@ -35,23 +42,28 @@ class _KindleViewState extends State<KindleView> {
     return CallbackShortcuts(
       bindings: {
         SingleActivator(LogicalKeyboardKey.space): () {
-          pageView?.next();
+          setState(() {
+            controller.ToNextPage();
+          });
         },
         SingleActivator(LogicalKeyboardKey.arrowLeft): () {
-          pageView?.prev();
+          setState(() {
+            controller.ToPrevPage();
+          });
         }
       },
-      child: Stack(
-        children: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.7,
-            child: SelectionArea(
-              child: pageView ?? const Text("loading"),
+      child: !controller.ready
+          ? const Text("Loading")
+          : Stack(
+              children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.7,
+                  child: SelectionArea(
+                    child: KindlePageView(controller.GetPage(), scale),
+                  ),
+                ),
+              ],
             ),
-          ),
-          metaData.tableOfContents.build(),
-        ],
-      ),
     );
   }
 }
