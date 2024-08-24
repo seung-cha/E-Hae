@@ -13,7 +13,7 @@ class KindleView extends StatefulWidget {
 class _KindleViewState extends State<KindleView> {
   double scale = 1.0;
   int page = 0;
-  late BookMetadata metaData;
+  BookMetadata metaData = BookMetadata();
   KindlePageView? pageView;
 
   void openFile() async {
@@ -41,8 +41,16 @@ class _KindleViewState extends State<KindleView> {
           pageView?.prev();
         }
       },
-      child: SelectionArea(
-        child: pageView ?? const Text("loading"),
+      child: Stack(
+        children: [
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.7,
+            child: SelectionArea(
+              child: pageView ?? const Text("loading"),
+            ),
+          ),
+          metaData.tableOfContents.build(),
+        ],
       ),
     );
   }

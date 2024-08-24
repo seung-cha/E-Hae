@@ -2,14 +2,13 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 
 class BookMetadata {
-  final double width;
-  final double height;
-  final String id;
-  final int pageCount;
-  final TableOfContents tableOfContents;
+  late double width;
+  late double height;
+  late String id;
+  late int pageCount;
+  TableOfContents tableOfContents = TableOfContents();
 
-  BookMetadata(
-      this.id, this.pageCount, this.width, this.height, this.tableOfContents);
+  BookMetadata();
   BookMetadata.fromJson(Map<String, dynamic> json)
       : width = json['width'] as double,
         height = json['height'] as double,
@@ -23,38 +22,43 @@ class BookMetadata {
 class TableOfContents {
   final List<TocElement> elements = [];
 
+  TableOfContents();
   TableOfContents.fromJson(Queue<List<dynamic>> json) {
     while (json.isNotEmpty) {
       elements.add(TocElement.fromJson(json));
     }
   }
 
-  List<Widget> build() {
+  
+  Widget build() {
     List<Widget> widgets = [];
     for (var element in elements) {
       element.build(widgets);
     }
 
-    return widgets;
+    return Column(children: widgets);
   }
 }
 
 class TocElement {
   final List<TocElement> childs = [];
-  final int page;
+  late int page;
+  late String name = "";
 
-  TocElement(this.page);
-  TocElement.fromJson(Queue<List<dynamic>> json) : page = json.first[2] as int {
+  TocElement({this.page = 0});
+  TocElement.fromJson(Queue<List<dynamic>> json)
+      : page = json.first[2] as int,
+        name = json.first[1] as String {
     final int lvl = json.first[0];
     json.removeFirst();
     while (json.isNotEmpty) {
       final int nextLvl = json.first[0];
 
-      if (nextLvl <= lvl) {
-        break;
-      } else {
+      if (nextLvl > lvl) {
         // Nested ToC, append.
         childs.add(TocElement.fromJson(json));
+      } else {
+        break;
       }
     }
   }
@@ -69,6 +73,6 @@ class TocElement {
 
   /// Build actual widget for this TOC element.
   Widget _build() {
-    return Container();
+    return Text(name);
   }
 }
