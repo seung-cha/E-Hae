@@ -46,7 +46,6 @@ class OpenFile(Resource):
         height = media.height
 
         toc = doc.get_toc()
-        print(toc)
 
         return {'id': h, 'width': width, 'height': height, 'pageCount': doc.page_count, 'toc': toc}, OK
 
