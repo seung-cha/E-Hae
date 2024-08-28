@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'type/kindlePage.dart';
+import '../type/kindlePage.dart';
 
 class KindlePageView extends StatefulWidget {
   KindlePageView(this._page, this._scale);

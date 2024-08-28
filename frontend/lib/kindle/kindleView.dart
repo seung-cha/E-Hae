@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'kindlePageView.dart';
-import 'type/bookMetadata.dart';
 import 'package:flutter/services.dart';
 import 'kindleController.dart';
 
-import 'backend.dart';
+import '../backend.dart';
 
 class KindleView extends StatefulWidget {
   KindleView();

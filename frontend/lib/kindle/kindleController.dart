@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'type/kindlePage.dart';
-import 'type/bookMetadata.dart';
-import 'backend.dart';
+import '../type/kindlePage.dart';
+import '../type/bookMetadata.dart';
+import '../backend.dart';
 
 /// An widgetless controller for all kindle features
 /// such as moving between pages, jumping to specific page etc etc.
