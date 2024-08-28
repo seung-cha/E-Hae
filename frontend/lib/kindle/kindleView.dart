@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'kindlePageView.dart';
 import 'package:flutter/services.dart';
 import 'kindleController.dart';
+import 'tocView.dart';
 
 import '../backend.dart';
 
@@ -21,22 +22,27 @@ class _KindleViewState extends State<KindleView> {
   late KindleController controller = KindleController.init();
 
   void openFile() async {
-    controller = KindleController(await Backend.OpenFile(widget.path),
+    controller = KindleController(await Backend.openFile(widget.path),
         onSomePagesLoad: () {
       setState(() {});
     });
     // Calculate scale, fit to height
-    scale = 1.0;
   }
 
   @override
   void initState() {
-    super.initState();
+    scale = 1.0;
     openFile();
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    // Wait until kindle controller is initialised.
+    if (!controller.ready) {
+      return const Text("Loading");
+    }
+
     return CallbackShortcuts(
       bindings: {
         const SingleActivator(LogicalKeyboardKey.space): () {
@@ -50,18 +56,21 @@ class _KindleViewState extends State<KindleView> {
           });
         }
       },
-      child: !controller.ready
-          ? const Text("Loading")
-          : Stack(
-              children: [
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.7,
-                  child: SelectionArea(
-                    child: KindlePageView(controller.getPage(), scale),
-                  ),
-                ),
-              ],
+      child: Stack(
+        children: [
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.7,
+            child: SelectionArea(
+              child: KindlePageView(controller.getPage(), scale),
             ),
+          ),
+          Align(
+              alignment: Alignment.centerLeft,
+              child: TocView(controller, () {
+                setState(() {});
+              })),
+        ],
+      ),
     );
   }
 }

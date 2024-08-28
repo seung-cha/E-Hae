@@ -14,8 +14,8 @@ class BookMetadata {
         height = json['height'] as double,
         id = json['id'] as String,
         pageCount = json['pageCount'] as int,
-        tableOfContents = TableOfContents.fromJson(
-            new Queue<List<dynamic>>.from(json['toc']));
+        tableOfContents =
+            TableOfContents.fromJson(Queue<List<dynamic>>.from(json['toc']));
 }
 
 /// The root of all table of contents elements, stored as a tree.
@@ -27,16 +27,6 @@ class TableOfContents {
     while (json.isNotEmpty) {
       elements.add(TocElement.fromJson(json));
     }
-  }
-
-  
-  Widget build() {
-    List<Widget> widgets = [];
-    for (var element in elements) {
-      element.build(widgets);
-    }
-
-    return Column(children: widgets);
   }
 }
 
@@ -61,18 +51,5 @@ class TocElement {
         break;
       }
     }
-  }
-
-  /// Interface for building a hierarchy of widgets.
-  void build(List<Widget> out) {
-    out.add(_build());
-    for (var child in childs) {
-      child.build(out);
-    }
-  }
-
-  /// Build actual widget for this TOC element.
-  Widget _build() {
-    return Text(name);
   }
 }

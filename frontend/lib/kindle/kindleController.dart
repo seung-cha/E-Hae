@@ -23,7 +23,7 @@ class KindleController {
 
   void _loadPage() async {
     for (int i = 0; i < metadata.pageCount; i++) {
-      _pages.add(await Backend.GetPage(metadata.id, i));
+      _pages.add(await Backend.getPage(metadata.id, i));
       if (!ready) {
         onSomePagesLoad?.call();
         ready = true;
