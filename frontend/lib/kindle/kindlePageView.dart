@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../type/kindlePage.dart';
 
 class KindlePageView extends StatefulWidget {
-  KindlePageView(this._page, this._scale);
+  const KindlePageView(this._page, this._scale, {super.key});
 
   final KindlePage _page;
   final double _scale;

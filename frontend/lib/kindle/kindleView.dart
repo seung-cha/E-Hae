@@ -57,18 +57,21 @@ class _KindleViewState extends State<KindleView> {
         }
       },
       child: Stack(
+        alignment: Alignment.center,
         children: [
           SizedBox(
-            width: MediaQuery.of(context).size.width * 0.7,
+            width: MediaQuery.of(context).size.width * 0.5,
             child: SelectionArea(
               child: KindlePageView(controller.getPage(), scale),
             ),
           ),
           Align(
-              alignment: Alignment.centerLeft,
-              child: TocView(controller, () {
-                setState(() {});
-              })),
+            alignment: Alignment.centerLeft,
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.25,
+              child: TocView(controller, () => setState(() {})),
+            ),
+          ),
         ],
       ),
     );
