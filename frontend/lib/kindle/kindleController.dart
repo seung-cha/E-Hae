@@ -50,6 +50,10 @@ class KindleController {
     }
   }
 
+  int getIndex() {
+    return _index;
+  }
+
   /// Get the next page, if exists.
   /// Return the current page otherwise.
   /// Invoke callbacks in onPageChanged.
