@@ -1,5 +1,4 @@
 import 'dart:collection';
-import 'package:flutter/material.dart';
 
 class BookMetadata {
   late double width;

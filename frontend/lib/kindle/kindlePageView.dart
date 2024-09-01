@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/kindle/kindleController.dart';
 import '../type/kindlePage.dart';
 
 class KindlePageView extends StatefulWidget {
-  const KindlePageView(this._page, this._scale, {super.key});
+  const KindlePageView(this.controller, {super.key});
 
-  final KindlePage _page;
-  final double _scale;
+  final KindleController controller;
   @override
   createState() => _KindlePageView();
 }
 
 class _KindlePageView extends State<KindlePageView> {
+  double scale = 1.0;
+  late KindlePage page;
   @override
   void initState() {
     super.initState();
+    page = widget.controller.getPage();
+    widget.controller.onPageChanged.add((page) => setState(() {
+          this.page = page;
+        }));
   }
 
   @override
@@ -25,15 +31,15 @@ class _KindlePageView extends State<KindlePageView> {
         children: [
           Container(color: Colors.black45),
           Transform.scale(
-            scale: widget._scale,
+            scale: scale,
             child: Container(
-              width: widget._page.width,
-              height: widget._page.height,
+              width: page.width,
+              height: page.height,
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 250, 250, 250),
                 border: Border.all(),
               ),
-              child: widget._page.build(),
+              child: page.build(),
             ),
           ),
         ],

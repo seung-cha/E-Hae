@@ -16,7 +16,6 @@ class KindleView extends StatefulWidget {
 }
 
 class _KindleViewState extends State<KindleView> {
-  double scale = 1.0;
   int page = 0;
 
   late KindleController controller = KindleController.init();
@@ -31,7 +30,6 @@ class _KindleViewState extends State<KindleView> {
 
   @override
   void initState() {
-    scale = 1.0;
     openFile();
     super.initState();
   }
@@ -46,14 +44,10 @@ class _KindleViewState extends State<KindleView> {
     return CallbackShortcuts(
       bindings: {
         const SingleActivator(LogicalKeyboardKey.space): () {
-          setState(() {
-            controller.toNextPage();
-          });
+          controller.toNextPage();
         },
         const SingleActivator(LogicalKeyboardKey.arrowLeft): () {
-          setState(() {
-            controller.toPrevPage();
-          });
+          controller.toPrevPage();
         }
       },
       child: Stack(
@@ -62,14 +56,14 @@ class _KindleViewState extends State<KindleView> {
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.5,
             child: SelectionArea(
-              child: KindlePageView(controller.getPage(), scale),
+              child: KindlePageView(controller),
             ),
           ),
           Align(
             alignment: Alignment.centerLeft,
             child: SizedBox(
               width: MediaQuery.of(context).size.width * 0.25,
-              child: TocView(controller, () => setState(() {})),
+              child: TocView(controller),
             ),
           ),
         ],

@@ -9,8 +9,7 @@ import '../type/bookMetadata.dart';
 
 class TocView extends StatefulWidget {
   final KindleController controller;
-  final VoidCallback onPageChanged;
-  const TocView(this.controller, this.onPageChanged, {super.key});
+  const TocView(this.controller, {super.key});
 
   @override
   State<StatefulWidget> createState() => _TocViewState();
@@ -25,7 +24,7 @@ class _TocViewState extends State<TocView> {
     toc = widget.controller.metadata.tableOfContents;
 
     for (var elem in toc.elements) {
-      list.add(ExpansionTileToc(widget.controller, elem, widget.onPageChanged));
+      list.add(ExpansionTileToc(widget.controller, elem));
     }
 
     super.initState();
@@ -42,9 +41,7 @@ class _TocViewState extends State<TocView> {
 class ExpansionTileToc extends StatefulWidget {
   final KindleController controller;
   final TocElement tocElement;
-  final VoidCallback onPageChange;
-  const ExpansionTileToc(this.controller, this.tocElement, this.onPageChange,
-      {super.key});
+  const ExpansionTileToc(this.controller, this.tocElement, {super.key});
   @override
   State<StatefulWidget> createState() => _ExpansionTileTocState();
 }
@@ -60,7 +57,7 @@ class _ExpansionTileTocState extends State<ExpansionTileToc> {
   void initState() {
     super.initState();
     for (var elem in widget.tocElement.childs) {
-      _list.add(ExpansionTileToc(widget.controller, elem, widget.onPageChange));
+      _list.add(ExpansionTileToc(widget.controller, elem));
     }
   }
 
@@ -72,14 +69,12 @@ class _ExpansionTileTocState extends State<ExpansionTileToc> {
         children: _list,
         onExpansionChanged: (value) {
           widget.controller.toPage(widget.tocElement.page);
-          widget.onPageChange();
         },
       );
     } else {
       return TextButton(
           onPressed: () {
             widget.controller.toPage(widget.tocElement.page);
-            widget.onPageChange();
           },
           child: Text(widget.tocElement.name));
     }
