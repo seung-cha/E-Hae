@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/kindle/kindleControlWidget.dart';
 import 'kindlePageView.dart';
 import 'package:flutter/services.dart';
 import 'kindleController.dart';
@@ -65,6 +66,10 @@ class _KindleViewState extends State<KindleView> {
               width: MediaQuery.of(context).size.width * 0.25,
               child: TocView(controller),
             ),
+          ),
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: KindleControlWidget(controller, context),
           ),
         ],
       ),

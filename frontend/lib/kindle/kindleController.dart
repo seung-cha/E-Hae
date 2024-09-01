@@ -16,7 +16,7 @@ class KindleController {
   final BookMetadata metadata;
   int _index = 0;
   bool ready = false;
-  double scale = 1.0;
+  double _scale = 1.0;
 
   /// Callbacks for state change
   final List<VoidCallback> onSomePagesLoad = [];
@@ -97,7 +97,7 @@ class KindleController {
   /// Invokes onScaleChanged.
   /// Return the new scale.
   double changeScale(double scale) {
-    this.scale = scale;
+    _scale = scale;
 
     for (var callback in onScaleChanged) {
       callback(scale);
@@ -108,6 +108,6 @@ class KindleController {
 
   /// Get the current scale.
   double getScale() {
-    return scale;
+    return _scale;
   }
 }

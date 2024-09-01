@@ -20,6 +20,10 @@ class _KindlePageView extends State<KindlePageView> {
     widget.controller.onPageChanged.add((page) => setState(() {
           this.page = page;
         }));
+
+    widget.controller.onScaleChanged.add((scale) => setState(() {
+          this.scale = scale;
+        }));
   }
 
   @override
