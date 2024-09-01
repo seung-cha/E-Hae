@@ -28,7 +28,8 @@ class _KindleControlWidgetState extends State<KindleControlWidget> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // Zoom out, fit to screen, zoom in, zoom level, page/pagecount
+        // Zoom out, fit to screen, zoom in, zoom level,
+        // To prev, Page/Pagecount, To next
         // TODO: Design the layout.
         IconButton(
           icon: const Icon(Icons.zoom_out),
@@ -51,8 +52,20 @@ class _KindleControlWidgetState extends State<KindleControlWidget> {
           },
         ),
         Text(scale.toStringAsFixed(2)),
+        IconButton(
+          icon: const Icon(Icons.navigate_before),
+          onPressed: () {
+            widget.controller.toPrevPage();
+          },
+        ),
         Text(
             "${widget.controller.getIndex()}/${widget.controller.metadata.pageCount}"),
+        IconButton(
+          icon: const Icon(Icons.navigate_next),
+          onPressed: () {
+            widget.controller.toNextPage();
+          },
+        ),
       ],
     );
   }
