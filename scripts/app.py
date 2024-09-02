@@ -26,8 +26,27 @@ openFiles = {}
 
 class OpenFile(Resource):
     """
+    /open
+
     Open PDF (or epub) file, storing it in a dictionary.
     Send the file's metadata as response.
+
+    Request form:
+    {
+        path:       str                         # Path to a pdf file, relative to where the app.py is executed.
+    }
+
+    Response form:
+    {
+        id:         str                         # digits represented in string, to avoid overflow problem in Dart.
+        width:      int                         # width of the first page, usually sufficient as dimensions are the same for most books.
+        height:     int                         # height of the first page.
+        pageCount:  int                         # total number of pages
+        toc:        list(lvl, title, page)      # nested lvl, title, destination page (1 based indexing).
+
+        More info: https://pymupdf.readthedocs.io/en/latest/document.html#Document.get_toc 
+    }
+
     """
     def post(self):
         path = request.args['path']
@@ -52,10 +71,22 @@ class OpenFile(Resource):
 api.add_resource(OpenFile, '/open')
 
 
+
 class GetPage(Resource):
     """
+    /get
+
     Get a page of currently-open file.
     A page must be open beforehand.
+
+    Request form:
+    {
+        id:         str                         # digits represented in string, to avoid overflow problem in Dart.
+        pageNo:     int                         # Page to load, assume it is valid.
+    }
+
+    Response form: https://pymupdf.readthedocs.io/en/latest/page.html#Page.get_image_info
+
     """
     def get(self):
         id = request.args['id']
