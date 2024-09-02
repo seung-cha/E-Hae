@@ -7,6 +7,8 @@ import json
 import base64
 import hashlib
 
+import dictionary as WordDict
+
 app = Flask(__name__)
 CORS(app)
 api = Api(app)
@@ -16,6 +18,7 @@ POST = 'POST'
 PUT = 'PUT'
 DELETE = 'DELETE'
 OK = 200
+BAD_REQ = 404
 
 """
 Because Flutter has no good packages for PDFs, handle all logics in Python
@@ -70,16 +73,14 @@ class OpenFile(Resource):
 
 api.add_resource(OpenFile, '/open')
 
-
-
 class GetPage(Resource):
     """
-    /get
+    /getPage
 
     Get a page of currently-open file.
     A page must be open beforehand.
 
-    Request form:
+    Request form (params):
     {
         id:         str                         # digits represented in string, to avoid overflow problem in Dart.
         pageNo:     int                         # Page to load, assume it is valid.
@@ -137,8 +138,46 @@ class GetPage(Resource):
         pageDict['imgs'] = pageImages
         return pageDict, OK
 
+api.add_resource(GetPage, '/getPage')
 
-api.add_resource(GetPage, '/get')
+class GetDefinition(Resource):
+    """
+    /definition
+
+    Get the definition of requested word
+
+    Request form (params):
+    {
+        word:       str                     # word to get the definition for
+        lang:       str                     # language of the word    
+    }
+
+    supported lang: [en]
+
+    Response form: See dictionary.py
+    {
+        error:      str                     # Error str if definition could not be found
+    }
+    """
+
+    def get(self):
+        word = request.args['word']
+        lang = request.args['lang']
+
+        try:
+            res = OK
+            match lang:
+                case 'en':
+                    definition = WordDict.English(word)
+                case '_':
+                    definition = {'error': 'language not supported'}
+                    res = BAD_REQ    
+
+            return definition, res
+        except WordDict.NoDefinition as err:
+            return { 'error': err }, BAD_REQ
+        
+api.add_resource(GetDefinition, '/definition')
 
 
 if __name__ == '__main__':
