@@ -169,6 +169,8 @@ class GetDefinition(Resource):
             match lang:
                 case 'en':
                     definition = Dictionary.English(word)
+                case 'jp':
+                    definition = Dictionary.Japanese(word)
                 case '_':
                     definition = {'error': 'language not supported'}
                     res = BAD_REQ    

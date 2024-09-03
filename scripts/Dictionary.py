@@ -93,13 +93,15 @@ def Japanese(word: str):
             'type': '; '.join(meaning['parts_of_speech']),   # TODO: Consider changing structure
             'definitions': [
                 {
-                    'definition': '; '.join(meaning['english_definitions'])
+                    'definition': '; '.join(meaning['english_definitions']),
+                    'example': ''   # TODO
                 }   
             ] 
         }
 
         ret['meanings'].append(ret_meaning)
 
+    print(ret)
     return ret
     
 
