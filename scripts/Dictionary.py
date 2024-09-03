@@ -28,7 +28,7 @@ import requests
 
 
 class NoDefinition(Exception):
-    def __init__(self, word, message):
+    def __init__(self, word):
         self.word = word
         super().__init__(f'Could not find the definition for {word}')
 

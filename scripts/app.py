@@ -175,7 +175,7 @@ class GetDefinition(Resource):
 
             return definition, res
         except Dictionary.NoDefinition as err:
-            return { 'error': err }, BAD_REQ
+            return { 'error': str(err) }, BAD_REQ
         
 api.add_resource(GetDefinition, '/definition')
 
