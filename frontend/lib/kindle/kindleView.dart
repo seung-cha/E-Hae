@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/kindle/kindleControlWidget.dart';
+import 'package:frontend/kindle/kindleToolbar.dart';
 import 'kindlePageView.dart';
 import 'package:flutter/services.dart';
 import 'kindleController.dart';
@@ -8,7 +9,7 @@ import 'tocView.dart';
 import '../backend.dart';
 
 class KindleView extends StatefulWidget {
-  KindleView();
+  const KindleView({super.key});
 
   // TODO: REMOVE THIS
   final String path = './book_samples/novel_text_only.pdf';
@@ -26,11 +27,11 @@ class _KindleViewState extends State<KindleView> {
         onSomePagesLoad: () {
       setState(() {});
     });
-    // Calculate scale, fit to height
   }
 
   @override
   void initState() {
+    BrowserContextMenu.disableContextMenu();
     openFile();
     super.initState();
   }
@@ -51,26 +52,28 @@ class _KindleViewState extends State<KindleView> {
           controller.toPrevPage();
         }
       },
-      child: Stack(
-        alignment: Alignment.center,
+      child: Row(
         children: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.5,
+          // Align(
+          //   alignment: Alignment.centerLeft,
+          //   child: SizedBox(
+          //     width: MediaQuery.of(context).size.width * 0.25,
+          //     child: TocView(controller),
+          //   ),
+          // ),
+          KindleToolBar(controller, context),
+          Expanded(
             child: SelectionArea(
+              onSelectionChanged: (value) {
+                print(value?.plainText);
+              },
               child: KindlePageView(controller),
             ),
           ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.25,
-              child: TocView(controller),
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomLeft,
-            child: KindleControlWidget(controller, context),
-          ),
+          // Align(
+          //   alignment: Alignment.bottomLeft,
+          //   child: KindleControlWidget(controller, context),
+          // ),
         ],
       ),
     );

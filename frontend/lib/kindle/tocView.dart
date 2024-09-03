@@ -32,9 +32,7 @@ class _TocViewState extends State<TocView> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: list,
-    );
+    return ListView(children: list);
   }
 }
 

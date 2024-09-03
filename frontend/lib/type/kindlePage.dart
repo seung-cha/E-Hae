@@ -67,7 +67,10 @@ class KindlePage {
           );
         }
 
-        TextSpan span0 = TextSpan(children: textSpans);
+        // Append an empty space " " because without it Flutter
+        // concatenates strings without any space or new line.
+        // It would combine two separate lines without space.
+        TextSpan span0 = TextSpan(text: " ", children: textSpans);
 
         widgets.add(
           Positioned(
@@ -78,7 +81,6 @@ class KindlePage {
             child: Container(
               //decoration: BoxDecoration(border: Border.all()), // Uncomment to debug
               child: FittedBox(
-                alignment: Alignment.centerLeft,
                 fit: BoxFit.cover,
                 child: Text.rich(
                   span0,
