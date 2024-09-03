@@ -7,7 +7,7 @@ import json
 import base64
 import hashlib
 
-import dictionary as WordDict
+import Dictionary
 
 app = Flask(__name__)
 CORS(app)
@@ -168,13 +168,13 @@ class GetDefinition(Resource):
             res = OK
             match lang:
                 case 'en':
-                    definition = WordDict.English(word)
+                    definition = Dictionary.English(word)
                 case '_':
                     definition = {'error': 'language not supported'}
                     res = BAD_REQ    
 
             return definition, res
-        except WordDict.NoDefinition as err:
+        except Dictionary.NoDefinition as err:
             return { 'error': err }, BAD_REQ
         
 api.add_resource(GetDefinition, '/definition')
