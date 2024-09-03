@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/kindle/kindleControlWidget.dart';
 import 'package:frontend/kindle/kindleToolbar.dart';
 import 'kindlePageView.dart';
 import 'package:flutter/services.dart';
 import 'kindleController.dart';
-import 'tocView.dart';
 
 import '../backend.dart';
 
@@ -23,10 +21,8 @@ class _KindleViewState extends State<KindleView> {
   late KindleController controller = KindleController.init();
 
   void openFile() async {
-    controller = KindleController(await Backend.openFile(widget.path),
-        onSomePagesLoad: () {
-      setState(() {});
-    });
+    controller = KindleController(await Backend.openFile(widget.path));
+    controller.onSomePagesLoad.add(onSomePagesLoad);
   }
 
   @override
@@ -37,6 +33,14 @@ class _KindleViewState extends State<KindleView> {
   }
 
   @override
+  void dispose() {
+    controller.onSomePagesLoad.remove(onSomePagesLoad);
+    super.dispose();
+  }
+
+  void onSomePagesLoad() => setState(() {});
+
+  @override
   Widget build(BuildContext context) {
     // Wait until kindle controller is initialised.
     if (!controller.ready) {
@@ -45,35 +49,25 @@ class _KindleViewState extends State<KindleView> {
 
     return CallbackShortcuts(
       bindings: {
-        const SingleActivator(LogicalKeyboardKey.space): () {
+        const SingleActivator(LogicalKeyboardKey.arrowUp): () {
+          controller.toPrevPage();
+        },
+        const SingleActivator(LogicalKeyboardKey.arrowDown): () {
           controller.toNextPage();
         },
-        const SingleActivator(LogicalKeyboardKey.arrowLeft): () {
-          controller.toPrevPage();
-        }
       },
       child: Row(
         children: [
-          // Align(
-          //   alignment: Alignment.centerLeft,
-          //   child: SizedBox(
-          //     width: MediaQuery.of(context).size.width * 0.25,
-          //     child: TocView(controller),
-          //   ),
-          // ),
           KindleToolBar(controller, context),
           Expanded(
             child: SelectionArea(
-              onSelectionChanged: (value) {
-                print(value?.plainText);
-              },
+              onSelectionChanged: (value) => setState(() {
+                controller
+                    .notifyTextSelection(value != null ? value.plainText : "");
+              }),
               child: KindlePageView(controller),
             ),
           ),
-          // Align(
-          //   alignment: Alignment.bottomLeft,
-          //   child: KindleControlWidget(controller, context),
-          // ),
         ],
       ),
     );

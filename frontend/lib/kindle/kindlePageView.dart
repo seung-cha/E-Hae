@@ -17,14 +17,20 @@ class _KindlePageView extends State<KindlePageView> {
   void initState() {
     super.initState();
     page = widget.controller.getPage();
-    widget.controller.onPageChanged.add((page) => setState(() {
-          this.page = page;
-        }));
 
-    widget.controller.onScaleChanged.add((scale) => setState(() {
-          this.scale = scale;
-        }));
+    widget.controller.onPageChanged.add(onPageChanged);
+    widget.controller.onScaleChanged.add(onScaleChanged);
   }
+
+  @override
+  void dispose() {
+    widget.controller.onPageChanged.remove(onPageChanged);
+    widget.controller.onScaleChanged.remove(onScaleChanged);
+    super.dispose();
+  }
+
+  void onPageChanged(KindlePage page) => setState(() => this.page = page);
+  void onScaleChanged(double scale) => setState(() => this.scale = scale);
 
   @override
   Widget build(BuildContext context) {

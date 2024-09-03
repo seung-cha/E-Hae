@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/kindle/kindleControlWidget.dart';
+import 'package:frontend/kindle/kindleDefinitionSearch.dart';
 import 'package:frontend/kindle/tocView.dart';
 import 'kindleController.dart';
 
@@ -27,7 +28,7 @@ class _KindleToolbarState extends State<KindleToolBar> {
 
     toolbarOptions = [
       TocView(widget.controller),
-      const SizedBox(),
+      KindleDefinitionSearch(widget.controller),
       const SizedBox(),
     ];
 

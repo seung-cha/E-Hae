@@ -10,6 +10,7 @@ import '../backend.dart';
 
 typedef DoubleCallback = void Function(double value);
 typedef PageCallback = void Function(KindlePage page);
+typedef StringCallback = void Function(String value);
 
 class KindleController {
   final List<KindlePage> _pages = [];
@@ -17,23 +18,19 @@ class KindleController {
   int _index = 0;
   bool ready = false;
   double _scale = 1.0;
+  String _selectedStr = "";
 
   /// Callbacks for state change
   final List<VoidCallback> onSomePagesLoad = [];
   final List<DoubleCallback> onScaleChanged = [];
   final List<PageCallback> onPageChanged = [];
+  final List<StringCallback> onTextSelected = [];
 
   KindleController.init() : metadata = BookMetadata();
 
-  KindleController(this.metadata,
-      {VoidCallback? onSomePagesLoad,
-      DoubleCallback? onScaleChanged,
-      PageCallback? onPageChanged}) {
-    // Subscribe to events
-    if (onSomePagesLoad != null) this.onSomePagesLoad.add(onSomePagesLoad);
-    if (onScaleChanged != null) this.onScaleChanged.add(onScaleChanged);
-    if (onPageChanged != null) this.onPageChanged.add(onPageChanged);
-
+  KindleController(
+    this.metadata,
+  ) {
     _loadPage();
   }
 
@@ -111,7 +108,15 @@ class KindleController {
   }
 
   /// Get the current scale.
-  double getScale() {
-    return _scale;
+  double getScale() => _scale;
+
+  /// Notify subscribers that user dragged and selected text
+  void notifyTextSelection(String str) {
+    _selectedStr = str;
+    for (var callback in onTextSelected) {
+      callback(str);
+    }
   }
+
+  String getSelectedString() => _selectedStr;
 }
