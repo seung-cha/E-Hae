@@ -89,8 +89,7 @@ class _KindleToolbarState extends State<KindleToolBar> {
             ],
           ),
         ),
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
+        SizedBox(
           width: hasItemSelected ? 500 : 0,
           child: selectedWidget,
         )
